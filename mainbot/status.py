@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 import redis
+from conf import REDIS_ADDR, REDIS_PART
 
 
 class BotStatus:
     def __init__(self, group):
-        self.db = redis.Redis(host='127.0.0.1', port=6379)
+        self.db = redis.Redis(host=REDIS_ADDR, port=REDIS_PART)
         self.group = str(group)
 
     def get_status(self, key):

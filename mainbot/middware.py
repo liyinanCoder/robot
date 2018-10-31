@@ -2,22 +2,48 @@
 # -*- coding: UTF-8 -*-
 import requests
 import simplejson
+import random
+import string
+import uuid
 from status import BotStatus
+import datetime
+import time
+from urllib.parse import quote
+import hashlib
+from conf import KEY, APP_ID
 
 
 # ai参数
-key = '8edce3ce905a4c1dbb965e6b35c3834d'
-api_url = 'http://www.tuling123.com/openapi/api'
+api_url = 'https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat'
 
 
-def tuling_ai(request, group=None):
-    submit = {'key': key, 'info': request, 'userid': 'qq-bot'}
+def qq_ai(request, group=None):
+    submit = {
+        'app_id': APP_ID,
+        'time_stamp': int(time.mktime(datetime.datetime.now().timetuple())),
+        'nonce_str': ''.join(random.sample(
+            string.ascii_letters + string.digits, 32)),
+        'session': str(uuid.uuid1()).replace('-', ''),
+        'question': request,
+    }
+
+    # 写入sign
+    submit_v = sorted(submit.items(), key=lambda e: e[0], reverse=False)
+    sign = ''
+    for node in submit_v:
+        if sign != '':
+            sign = sign + '&'
+        sign = sign + '{}={}'.format(node[0], quote(str(node[1])))
+    sign = sign + '&app_key={}'.format(KEY)
+    hl = hashlib.md5()
+    hl.update(sign.encode(encoding='utf-8'))
+    submit['sign'] = hl.hexdigest().upper()
 
     try:
         response = requests.post(api_url, data=submit).text
-        result = simplejson.loads(str(response))['text']
+        result = simplejson.loads(str(response))['data']['answer']
         if result is None:
-            return ''
+            return ''   
         return result
     except Exception:
         return ''

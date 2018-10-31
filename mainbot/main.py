@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 from qqbot import QQBotSlot as qqbotslot, RunBot
-from middware import tuling_ai, handle, get_key_value
+from middware import handle, get_key_value, qq_ai
 from middware import get_all_key_value
 
 
@@ -34,7 +34,7 @@ def getms(content, g):
         if not (result is ''):
             break
     if result is '' or result is None:
-        result = tuling_ai(content, group=g)
+        result = qq_ai(content, group=g)
     return result
 
 
